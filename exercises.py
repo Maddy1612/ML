@@ -329,3 +329,98 @@ plt.title('Receiver Operating Characteristic')
 plt.legend(loc="lower right")
 plt.show()
 ----------------------------------------------------------------------------------------------------------------------------------
+
+Program 7:
+
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn import tree
+data=load_breast_cancer()
+x=data.data
+y=data.target
+print("Feature Names:", data.feature_names)
+print("Class Names:", data.target_names)
+print("First two rows of the datasets:")
+print(x[:2])
+x_train, x_test, y_train, y_test=train_test_split(x, y, test_size=0.2, random_state=42)
+clf=DecisionTreeClassifier()
+clf.fit(x_train,y_train)
+y_pred=clf.predict(x_test)
+accuracy=accuracy_score(y_test,y_pred)
+print("Accuracy:", accuracy)
+print("Classification Report:")
+print(classification_report(y_test, y_pred, target_names=data.target_names))
+plt.figure(figsize=(20,10))
+tree.plot_tree(clf,feature_names=data.feature_names, class_names=data.target_names, filled=True)
+plt.show()
+------------------------------------------------------------------------------------------------------------------------------------------
+
+Program 8:
+
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.datasets import load_wine
+from sklearn.metrics import completeness_score, silhouette_score, calinski_harabasz_score
+wine=load_wine()
+x=pd.DataFrame(wine.data, columns=wine.feature_names)
+y=wine.target
+scaler=StandardScaler()
+x_scaled=scaler.fit_transform(x)
+k=3
+kmeans=KMeans(n_clusters=k, n_init=10, random_state=42)
+kmeans.fit(x_scaled)
+centroids=kmeans.cluster_centers_
+labels=kmeans.labels_
+completeness=completeness_score(y, labels)
+silhouette_avg=silhouette_score(x_scaled, labels)
+calinski_harabasz=calinski_harabasz_score(x_scaled, labels)
+print(f"Silhouette Coefficient: {silhouette_avg:.2f}")
+print(f"Calinski-Harabasz Index: {calinski_harabasz:.2f}")
+print(f"Completeness: {completeness:.2f}")
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Program 9:
+
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.datasets import load_iris
+from sklearn.metrics import completeness_score, silhouette_score, calinski_harabasz_score
+import scipy.cluster.hierarchy as sch
+import matplotlib.pyplot as plt
+iris = load_iris()
+x = pd.DataFrame(iris.data, columns=iris.feature_names)
+y = iris.target
+data = pd.concat([x, pd.Series(y, name='species')], axis=1)
+sample = data.groupby('species').apply(lambda x: x.sample(10, random_state=42)).reset_index(drop=True)
+x_sample = sample.drop(columns='species')
+y_sample = sample['species']
+scaler = StandardScaler()
+x_sample_scaled = scaler.fit_transform(x_sample)
+linked = sch.linkage(x_sample_scaled, method='ward')
+num_clusters = 3
+labels = sch.fcluster(linked, num_clusters, criterion='maxclust')
+completeness = completeness_score(y_sample, labels)
+silhouette = silhouette_score(x_sample_scaled, labels)
+calinski_harabasz = calinski_harabasz_score(x_sample_scaled, labels)
+print(f"Number of Clusters: {num_clusters}")
+print(f"Completeness Score: {completeness:.3f}")
+print(f"Silhouette Score: {silhouette:.3f}")
+print(f"Calinski-Harabasz Score: {calinski_harabasz:.3f}")
+plt.figure(figsize=(12, 8))
+dendrogram = sch.dendrogram(
+    linked,
+    orientation='top',
+    labels=y_sample.values,
+    distance_sort='descending',
+    show_leaf_counts=True
+)
+plt.title("Dendrogram of Hierarchical Clustering on Iris Sample")
+plt.xlabel("Sample Index / Species")
+plt.ylabel("Euclidean Distance")
+plt.show()
+-------------------------------------------------------------------------------------------------------------------------------------------
